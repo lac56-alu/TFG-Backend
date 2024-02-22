@@ -110,4 +110,29 @@ router.patch('/updateUser/:id',
 );
 
 
+// Delete usuario
+router.delete('/deleteUser/:id',
+  async (req, res) => {
+    try{
+        var idDel = req.params.id;
+        var deleteUser = await User.findByPk(idDel);
+
+        if (!deleteUser) {
+            return res.status(404).json({ errorMessage: "No existe ese usuario" });
+        }
+        var respuesta = await User.destroy({
+            where: {
+                id: idDel
+            }
+        });
+        res.status(200).json();
+    }
+    catch (error) {
+        // Manejo de la excepción
+        console.error('Se produjo un error:', error.message);
+        res.status(404).json({ errorMessage: error.message });
+    } 
+});
+
+
 module.exports = router;
