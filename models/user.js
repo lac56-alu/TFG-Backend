@@ -2,6 +2,11 @@ const Sequelize = require('sequelize');
 const sequelize = require('./index');
 
 const User = sequelize.define("users", {
+  id:{
+    type: Sequelize.BIGINT,
+    primaryKey: true,
+    autoIncrement: true
+  },
   name: {
     type: Sequelize.STRING
   },
@@ -9,7 +14,10 @@ const User = sequelize.define("users", {
     type: Sequelize.STRING
   },
   email: {
-    type: Sequelize.STRING
+    type: Sequelize.STRING,
+    validate: {   // same as above, but constructing the RegExp from a string
+      isEmail: true
+    }
   },
   password: {
     type: Sequelize.STRING
