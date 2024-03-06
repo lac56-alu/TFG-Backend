@@ -15,19 +15,17 @@ const checkParamsUser = [
 
 // Login
 router.post('/',
-checkParamsUser,
-  async (req, res) => {
-    var loginUser = matchedData(req, { 
-        locations: ['body'], 
-        includeOptionals: true 
-    });
-
+    checkParamsUser,
+    async (req, res) => {
     try{
         const user = await User.findOne({
-            where: { email: loginUser.email }
+            where: { email: req.body.email }
         });
 
-        if(loginUser.password === user.password){
+        console.log('\x1b[33m%s\x1b[0m', "PARAMETROS --> ", req.body.email, req.body.password);
+        console.log('\x1b[33m%s\x1b[0m', "BUSQUEDA --> ", user);
+
+        if(req.body.password == user.password){
             var token = user.token
             res.status(201).json({ token });
         }
@@ -37,8 +35,8 @@ checkParamsUser,
     }
     catch (error) {
         // Manejo de la excepción
-        console.error('Se produjo un error:', error.parent.sqlMessage);
-        res.status(400).json({ errorMessage: error.parent.sqlMessage });
+        console.error('Se produjo un error:', error.message);
+        res.status(400).json({ errorMessage: error.message });
     } 
 });
 
