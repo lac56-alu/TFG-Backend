@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('./index');
+const crypto = require('crypto');
 
 const User = sequelize.define("users", {
   id:{
@@ -27,12 +28,21 @@ const User = sequelize.define("users", {
   },
   identity_document: {
     type: Sequelize.STRING
+  },
+  token: {
+    type: Sequelize.STRING
   }
 },
 {
   tableName: 'users',
   timestamps: false // Deshabilita las columnas createdAt y updatedAt
 });
+
+User.generateKey = function(){
+  var randomBytes = crypto.randomBytes(32);
+  var apiKey = randomBytes.toString('hex');
+  return apiKey
+}
 
 /*
 User.prototype.isValidPassword = function(password) {

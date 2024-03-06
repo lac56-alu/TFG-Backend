@@ -12,8 +12,10 @@ const checkNewUser = [
     body('email').isEmail().withMessage("Field must be an email"),
     body('password').isString().withMessage("Field must be a string"),
     body('adress').isString().withMessage("Field must be a string"),
-    body('identity_document').isString().withMessage("Field must be a string")
+    body('identity_document').isString().withMessage("Field must be a string"),
+    body('token').isString().withMessage("Field must be a string")
 ];
+
 
 
 // Obtener todos los usuarios
@@ -58,28 +60,23 @@ router.post('/createUser',
         locations: ['body'], 
         includeOptionals: true 
     });
-    //newUser.apiKey = generateApiKey({ method: 'uuidv4' });
-
+    
     try{
+        newUser.token = User.generateKey();
         const user = await User.create(newUser);
         res.status(201).json({ user });
     }
     catch (error) {
         // Manejo de la excepción
-        console.error('Se produjo un error:', error.parent.sqlMessage);
-        res.status(400).json({ errorMessage: error.parent.sqlMessage });
+        console.error('Se produjo un error:', error.message);
+        res.status(400).json({ errorMessage: error.message });
     } 
 });
 
 // Modificar datos usuario
 router.patch('/updateUser/:id',
     param('id').isInt({ gt: 0 }).withMessage("Field must be a positive integer"),
-    body('name').optional().isString().withMessage("Field must be string"),
-    body('lastname').optional().isString().withMessage("Field must be string"),
-    body('password').optional().isString().withMessage("Field must be string"),
-    body('adress').optional().isString().withMessage("Field must be string"),
-    body('email').optional().isEmail().withMessage("Field must be an email"),
-
+    checkNewUser,
     async (req, res) => {
         var updatedUser = await User.findByPk(req.params.id);
 
