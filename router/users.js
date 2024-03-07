@@ -13,7 +13,8 @@ const checkNewUser = [
     body('password').isString().withMessage("Field must be a string"),
     body('adress').isString().withMessage("Field must be a string"),
     body('identity_document').isString().withMessage("Field must be a string"),
-    body('token').isString().withMessage("Field must be a string")
+    body('token').isString().withMessage("Field must be a string"),
+    body('telephone').isString().withMessage("Field must be a string")
 ];
 
 
@@ -56,13 +57,17 @@ router.get('/:id',
 router.post('/createUser',
   checkNewUser,
   async (req, res) => {
-    var newUser = matchedData(req, { 
-        locations: ['body'], 
-        includeOptionals: true 
-    });
-    
+    var newUser = new User();
     try{
+        newUser.name = req.body.name
+        newUser.lastname = req.body.lastname
+        newUser.adress = req.body.adress
+        newUser.identity_document = req.body.identity_document
+        newUser.telephone = req.body.telephone
+        newUser.email = req.body.email
+        newUser.password = req.body.password
         newUser.token = User.generateKey();
+        console.log(newUser);
         const user = await User.create(newUser);
         res.status(201).json({ user });
     }

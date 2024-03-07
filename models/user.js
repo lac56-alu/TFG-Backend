@@ -29,6 +29,9 @@ const User = sequelize.define("users", {
   identity_document: {
     type: Sequelize.STRING
   },
+  telephone: {
+    type: Sequelize.STRING
+  },
   token: {
     type: Sequelize.STRING
   }
