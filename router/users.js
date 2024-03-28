@@ -57,8 +57,10 @@ router.get('/:id',
 router.post('/createUser',
   checkNewUser,
   async (req, res) => {
-    var newUser = new User();
+    //const newUser = new User();
     try{
+        const newUser = matchedData(req, { locations: ['body'], includeOptionals: true });
+        /*
         newUser.name = req.body.name
         newUser.lastname = req.body.lastname
         newUser.adress = req.body.adress
@@ -66,8 +68,10 @@ router.post('/createUser',
         newUser.telephone = req.body.telephone
         newUser.email = req.body.email
         newUser.password = req.body.password
+        */
         newUser.token = User.generateKey();
         console.log(newUser);
+        
         const user = await User.create(newUser);
         res.status(201).json({ user });
     }
