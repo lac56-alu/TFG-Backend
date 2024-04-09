@@ -53,6 +53,21 @@ router.get('/:id',
     res.json(user);
 });
 
+router.get('/token/:token',
+    //param('id').isInt({ gt: 0 }).withMessage("Field must be a positive integer"),
+    async (req, res) => {
+    const token = req.params.token;
+    const user = await User.findOne({
+        where: { token }
+    });
+    
+    if (!user) {
+        return res.status(404).json({ errorMessage: "No existe ese usuario" });
+    }
+
+    res.json(user);
+});
+
 // Crear nuevo usuario
 router.post('/createUser',
   checkNewUser,
