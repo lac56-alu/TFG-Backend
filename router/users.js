@@ -53,19 +53,26 @@ router.get('/:id',
     res.json(user);
 });
 
-router.get('/token/:token',
+router.get('/searchToken/:token',
     //param('id').isInt({ gt: 0 }).withMessage("Field must be a positive integer"),
     async (req, res) => {
-    const token = req.params.token;
-    const user = await User.findOne({
-        where: { token }
-    });
-    
-    if (!user) {
-        return res.status(404).json({ errorMessage: "No existe ese usuario" });
-    }
-
-    res.json(user);
+        try{
+            const token = req.params.token;
+            const user = await User.findOne({
+                where: { token }
+            });
+            
+            if (!user) {
+                return res.status(404).json({ errorMessage: "No existe ese usuario" });
+            }
+        
+            res.json(user);
+        }
+        catch (error) {
+            // Manejo de la excepción
+            console.error('Se produjo un error:', error.message);
+            res.status(400).json({ errorMessage: error.message });
+        } 
 });
 
 // Crear nuevo usuario
