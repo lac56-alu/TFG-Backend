@@ -162,5 +162,28 @@ router.delete('/deleteUser/:id',
     } 
 });
 
+router.delete('/deleteUserToken/:token',
+  async (req, res) => {
+    try{
+        var tokenDel = req.params.token;
+        var deleteUser = await User.findOne({ where: { token: tokenDel } });
+
+        if (!deleteUser) {
+            return res.status(404).json({ errorMessage: "No existe ese usuario" });
+        }
+        var respuesta = await User.destroy({
+            where: {
+                id: deleteUser.id
+            }
+        });
+        res.status(200).json();
+    }
+    catch (error) {
+        // Manejo de la excepción
+        console.error('Se produjo un error:', error.message);
+        res.status(404).json({ errorMessage: error.message });
+    } 
+});
+
 
 module.exports = router;
