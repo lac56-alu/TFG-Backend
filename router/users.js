@@ -137,6 +137,37 @@ router.patch('/updateUser/:id',
     }   
 );
 
+router.patch('/updateUserToken/:token',
+    checkNewUser,
+    async (req, res) => {
+        var tokenEdit = req.params.token;
+        var updatedUser = await User.findOne({ where: { token: tokenEdit } });
+
+        if (!updatedUser) {
+            return res.status(404).json({ errorMessage: "No existe ese usuario" });
+        }
+
+        try{
+            var modifyUser = matchedData(req, { 
+                locations: ['body'], 
+                includeOptionals: true 
+            });
+            var updateResult = await User.update(modifyUser, {
+                where: {
+                    token: tokenEdit
+                }
+            });
+            updatedUser = await User.findOne({ where: { token: tokenEdit } });
+            res.status(200).json({ updatedUser });
+        }
+        catch (error) {
+            // Manejo de la excepción
+            console.error('Se produjo un error:', error.message);
+            res.status(400).json({ errorMessage: error.message });
+        } 
+    }   
+);
+
 
 // Delete usuario
 router.delete('/deleteUser/:id',
