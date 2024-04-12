@@ -34,6 +34,9 @@ const User = sequelize.define("users", {
   },
   token: {
     type: Sequelize.STRING
+  },
+  fk_rates: {
+    type: Sequelize.BIGINT
   }
 },
 {
