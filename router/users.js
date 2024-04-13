@@ -14,20 +14,14 @@ const checkNewUser = [
     body('adress').isString().withMessage("Field must be a string"),
     body('identity_document').isString().withMessage("Field must be a string"),
     body('token').isString().withMessage("Field must be a string"),
-    body('telephone').isString().withMessage("Field must be a string")
+    body('telephone').isString().withMessage("Field must be a string"),
+    body('fk_type_users').isNumeric().withMessage("Field must be a number")
 ];
 
 
 
 // Obtener todos los usuarios
 router.get('/getUsers',
-    /*
-    isAuthenticated,
-    isAdmin,
-    query('skip').default(0).isInt({ gt: -1 }).withMessage("Field must be a positve integer").toInt(),
-    query('limit').default(10).isInt({ gt: -1 }).withMessage("Field must be a positve integer").toInt(),
-    validationResponse,
-    */
     async (req, res) => {
     const requestURL = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
 
@@ -79,18 +73,8 @@ router.get('/searchToken/:token',
 router.post('/createUser',
   checkNewUser,
   async (req, res) => {
-    //const newUser = new User();
     try{
         const newUser = matchedData(req, { locations: ['body'], includeOptionals: true });
-        /*
-        newUser.name = req.body.name
-        newUser.lastname = req.body.lastname
-        newUser.adress = req.body.adress
-        newUser.identity_document = req.body.identity_document
-        newUser.telephone = req.body.telephone
-        newUser.email = req.body.email
-        newUser.password = req.body.password
-        */
         newUser.token = User.generateKey();
         console.log(newUser);
         
@@ -215,6 +199,41 @@ router.delete('/deleteUserToken/:token',
         res.status(404).json({ errorMessage: error.message });
     } 
 });
+
+// Comprobar admin
+router.get('/userType/:token',
+    //param('id').isInt({ gt: 0 }).withMessage("Field must be a positive integer"),
+    async (req, res) => {
+        try{
+            const token = req.params.token;
+            const user = await User.findOne({
+                where: { token }
+            });
+            
+            if (!user) {
+                return res.status(404).json({ errorMessage: "No existe ese usuario" });
+            }
+            
+            const id = user.fk_rates;
+            const rateFind = await Rate.findOne({
+                where: { id }
+            });
+            
+            if (!rateFind) {
+                return res.status(404).json({ errorMessage: "No existe esa tarifa" });
+            }
+        
+            res.json(rateFind);
+        
+            //res.json(user);
+        }
+        catch (error) {
+            // Manejo de la excepción
+            console.error('Se produjo un error:', error.message);
+            res.status(400).json({ errorMessage: error.message });
+        } 
+});
+
 
 
 module.exports = router;

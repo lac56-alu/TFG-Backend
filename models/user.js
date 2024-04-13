@@ -37,6 +37,9 @@ const User = sequelize.define("users", {
   },
   fk_rates: {
     type: Sequelize.BIGINT
+  },
+  fk_type_users: {
+    type: Sequelize.BIGINT
   }
 },
 {
