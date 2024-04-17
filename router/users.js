@@ -18,6 +18,13 @@ const checkNewUser = [
     body('fk_type_users').isNumeric().withMessage("Field must be a number")
 ];
 
+function checkAdmin(user) {
+    if (user.fk_type_users == 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 
 // Obtener todos los usuarios
@@ -29,6 +36,38 @@ router.get('/getUsers',
     const { count, rows: users } = await User.findAndCountAll();
 
     res.json(users);
+});
+
+router.get('/getUsersAdmin/:token',
+    async (req, res) => {
+        try{
+            const token = req.params.token;
+            const user = await User.findOne({
+                where: { token }
+            });
+            
+            if (!user) {
+                return res.status(404).json({ errorMessage: "No existe ese usuario" });
+            }
+            if(checkAdmin(user)){
+                const { count, rows: users } = await User.findAndCountAll();
+            
+                if (!users) {
+                    return res.status(404).json({ errorMessage: "No existen usuarios" });
+                }
+            
+                res.json(users);
+            } else{
+                return res.status(402).json({ errorMessage: "No tienes permisos" });
+            }
+
+            
+        }
+        catch (error) {
+            // Manejo de la excepción
+            console.error('Se produjo un error:', error.message);
+            res.status(400).json({ errorMessage: error.message });
+        }
 });
 
 // Obtener el usuario con el id pasado en los parametros
