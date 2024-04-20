@@ -239,6 +239,42 @@ router.delete('/deleteUserToken/:token',
     } 
 });
 
+router.delete('/deleteUserAdmin/:token/:id',
+  async (req, res) => {
+    try{
+        const token = req.params.token;
+        const user = await User.findOne({
+            where: { token }
+        });
+        
+        if (!user) {
+            return res.status(404).json({ errorMessage: "No existe ese usuario" });
+        }
+        if(checkAdmin(user)){
+            var idDel = req.params.id;
+            var deleteUser = await User.findByPk(idDel);
+    
+            if (!deleteUser) {
+                return res.status(404).json({ errorMessage: "No existe ese usuario" });
+            }
+            var respuesta = await User.destroy({
+                where: {
+                    id: idDel
+                }
+            });
+            res.status(200).json();
+        } else{
+            return res.status(402).json({ errorMessage: "No tienes permisos" });
+        }   
+    }
+    catch (error) {
+        // Manejo de la excepción
+        console.error('Se produjo un error:', error.message);
+        res.status(400).json({ errorMessage: error.message });
+    }
+});
+
+
 // Comprobar admin
 router.get('/userType/:token',
     //param('id').isInt({ gt: 0 }).withMessage("Field must be a positive integer"),

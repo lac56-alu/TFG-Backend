@@ -10,6 +10,14 @@ const checkNewRate = [
     body('value').isFloat().withMessage("Field must be float")
 ];
 
+function checkAdmin(user) {
+    if (user.fk_type_users == 1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 // Obtener todos las tarifas
 router.get('/getRates',
     async (req, res) => {
@@ -19,6 +27,39 @@ router.get('/getRates',
     const { count, rows: rates } = await Rate.findAndCountAll();
 
     res.json(rates);
+});
+
+// Obtener todos las tarifas
+router.get('/getRatesAdmin/:token',
+    async (req, res) => {
+        try{
+            const token = req.params.token;
+            const user = await User.findOne({
+                where: { token }
+            });
+            
+            if (!user) {
+                return res.status(404).json({ errorMessage: "No existe ese usuario" });
+            }
+            if(checkAdmin(user)){
+                const { count, rows: rates } = await Rate.findAndCountAll();
+            
+                if (!rates) {
+                    return res.status(404).json({ errorMessage: "No existen tarifas" });
+                }
+            
+                res.json(rates);
+            } else{
+                return res.status(402).json({ errorMessage: "No tienes permisos" });
+            }
+
+            
+        }
+        catch (error) {
+            // Manejo de la excepción
+            console.error('Se produjo un error:', error.message);
+            res.status(400).json({ errorMessage: error.message });
+        }
 });
 
 // Obtener la tarifa con el id pasado en los parametros
@@ -208,5 +249,43 @@ router.delete('/deleteRateToken/:token',
         res.status(400).json({ errorMessage: error.message });
     } 
 });
+
+router.delete('/deleteRateAdmin/:token/:id',
+  async (req, res) => {
+    try{
+        const token = req.params.token;
+        const user = await User.findOne({
+            where: { token }
+        });
+        
+        if (!user) {
+            return res.status(404).json({ errorMessage: "No existe ese usuario" });
+        }
+        if(checkAdmin(user)){
+            var idDel = req.params.id;
+            var deleteRate = await Rate.findByPk(idDel);
+
+            if (!deleteRate) {
+                return res.status(404).json({ errorMessage: "No existe esa tarifa" });
+            }
+            var respuesta = await Rate.destroy({
+                where: {
+                    id: idDel
+                }
+            });
+            res.status(200).json();
+        } else{
+            return res.status(402).json({ errorMessage: "No tienes permisos" });
+        }
+
+        
+    }
+    catch (error) {
+        // Manejo de la excepción
+        console.error('Se produjo un error:', error.message);
+        res.status(400).json({ errorMessage: error.message });
+    }
+});
+
 
 module.exports = router;
