@@ -7,10 +7,11 @@ const Sequelize = require("sequelize");
 
 
 const User = require('../models/user');
-const GymBooking = require('../models/gym_booking');
+const PadelBooking = require('../models/padel_booking');
 
 const checkNewBooking = [
     body('date').isDate().withMessage("Field must be date"),
+    body('num_court').isInt().withMessage("Field must be int"),
     body('fk_users').isInt().withMessage("Field must be int")
 ];
 
@@ -23,10 +24,10 @@ function checkAdmin(user) {
 }
 
 // Obtener todas las reservas del gimnasio
-router.get('/getGymBookings',
+router.get('/getPadelBookings',
     async (req, res) => {
         try{
-            const { count, rows: bookings } = await GymBooking.findAndCountAll();
+            const { count, rows: bookings } = await PadelBooking.findAndCountAll();
 
             if (!bookings) {
                 return res.status(404).json({ errorMessage: "No existen reservas" });
@@ -42,7 +43,7 @@ router.get('/getGymBookings',
 
 
 // Obtener todas las reservas del gimnasio
-router.get('/getGymBookingsAdmin/:token',
+router.get('/getPadelBookingsAdmin/:token',
     async (req, res) => {
         try{
             const token = req.params.token;
@@ -54,7 +55,7 @@ router.get('/getGymBookingsAdmin/:token',
                 return res.status(404).json({ errorMessage: "No existe ese usuario" });
             }
             if(checkAdmin(user)){
-                const { count, rows: bookings } = await GymBooking.findAndCountAll();
+                const { count, rows: bookings } = await PadelBooking.findAndCountAll();
             
                 if (!bookings) {
                     return res.status(404).json({ errorMessage: "No existen reservas" });
@@ -74,11 +75,11 @@ router.get('/getGymBookingsAdmin/:token',
 
 
 // Obtener la reserva del gimnasio
-router.get('/getGymBooking/:id',
+router.get('/getPadelBooking/:id',
     async (req, res) => {
         try{
             const id = req.params.id;
-            const bookingFind = await GymBooking.findOne({
+            const bookingFind = await PadelBooking.findOne({
                 where: { id }
             });
             
@@ -96,7 +97,7 @@ router.get('/getGymBooking/:id',
 
 
 // Obtener la reserva del gimnasio para el usuario
-router.get('/searchGymBooking/:token',
+router.get('/searchPadelBooking/:token',
     async (req, res) => {
         try{
             const token = req.params.token;
@@ -109,7 +110,7 @@ router.get('/searchGymBooking/:token',
             }
 
             fk_users = user.id;
-            const bookingFind = await GymBooking.findAndCountAll({
+            const bookingFind = await PadelBooking.findAndCountAll({
                 where: { fk_users }
             });
             
@@ -128,7 +129,7 @@ router.get('/searchGymBooking/:token',
 
 
 // Obtener la reserva del gimnasio para el usuario
-router.get('/searchGymBookingToday/:token',
+router.get('/searchPadelBookingToday/:token',
     async (req, res) => {
         try{
             const token = req.params.token;
@@ -143,7 +144,7 @@ router.get('/searchGymBookingToday/:token',
             fk_users = user.id;
             const currentDate = moment().tz('Europe/Madrid').format('YYYY-MM-DD');
             const conditionDate = Sequelize.literal(`DATE(date) = '${currentDate}'`);
-            const bookingFind = await GymBooking.findAndCountAll({
+            const bookingFind = await PadelBooking.findAndCountAll({
                 where: { 
                     fk_users, 
                     conditionDate,
@@ -165,7 +166,7 @@ router.get('/searchGymBookingToday/:token',
 
 
 // Crear nueva reserva
-router.post('/createGymBooking/:token/:hour',
+router.post('/createPadelBooking/:token/:hour',
     checkNewBooking,
     async (req, res) => {
         try{
@@ -183,7 +184,7 @@ router.post('/createGymBooking/:token/:hour',
             const currentDate = moment().tz('Europe/Madrid').format('YYYY-MM-DD');
             const dateBooking = currentDate.toString() + " " + hourBooking + ":00:00"
             console.log(dateBooking);
-            const booking = await GymBooking.create({
+            const booking = await PadelBooking.create({
                 date: dateBooking,
                 fk_users: user.id,
             });
@@ -195,7 +196,7 @@ router.post('/createGymBooking/:token/:hour',
         } 
 });
 
-router.delete('/deleteGymBooking/:token/:id',
+router.delete('/deletePadelBooking/:token/:id',
   async (req, res) => {
     try{
         const token = req.params.token;
@@ -208,12 +209,12 @@ router.delete('/deleteGymBooking/:token/:id',
         }
 
         var idDel = req.params.id;
-        var deleteGymBooking = await GymBooking.findByPk(idDel);
+        var deletePadelBooking = await PadelBooking.findByPk(idDel);
 
-        if (!deleteGymBooking) {
+        if (!deletePadelBooking) {
             return res.status(404).json({ errorMessage: "No existe esa reserva" });
         }
-        var respuesta = await GymBooking.destroy({
+        var respuesta = await PadelBooking.destroy({
             where: {
                 id: idDel
             }
@@ -227,7 +228,7 @@ router.delete('/deleteGymBooking/:token/:id',
     }
 });
 
-router.delete('/deleteAdminGymBooking/:token/:id',
+router.delete('/deleteAdminPadelBooking/:token/:id',
   async (req, res) => {
     try{
         const token = req.params.token;
@@ -241,12 +242,12 @@ router.delete('/deleteAdminGymBooking/:token/:id',
 
         if(checkAdmin(user)){
             var idDel = req.params.id;
-            var deleteGymBooking = await GymBooking.findByPk(idDel);
+            var deletePadelBooking = await PadelBooking.findByPk(idDel);
 
-            if (!deleteGymBooking) {
+            if (!deletePadelBooking) {
                 return res.status(404).json({ errorMessage: "No existe esa reserva" });
             }
-            var respuesta = await GymBooking.destroy({
+            var respuesta = await PadelBooking.destroy({
                 where: {
                     id: idDel
                 }
