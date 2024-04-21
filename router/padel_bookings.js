@@ -166,7 +166,7 @@ router.get('/searchPadelBookingToday/:token',
 
 
 // Crear nueva reserva
-router.post('/createPadelBooking/:token/:hour',
+router.post('/createPadelBooking/:token/:hour/:numCourt',
     checkNewBooking,
     async (req, res) => {
         try{
@@ -182,9 +182,10 @@ router.post('/createPadelBooking/:token/:hour',
             }
 
             const currentDate = moment().tz('Europe/Madrid').format('YYYY-MM-DD');
-            const dateBooking = currentDate.toString() + " " + hourBooking + ":00:00"
-            console.log(dateBooking);
+            const dateBooking = currentDate.toString() + " " + hourBooking + ":00:00";
+            const numCourtParam = req.params.numCourt;
             const booking = await PadelBooking.create({
+                num_court: numCourtParam,
                 date: dateBooking,
                 fk_users: user.id,
             });
