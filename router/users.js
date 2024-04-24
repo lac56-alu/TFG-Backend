@@ -115,7 +115,6 @@ router.post('/createUser',
     try{
         const newUser = matchedData(req, { locations: ['body'], includeOptionals: true });
         newUser.token = User.generateKey();
-        console.log(newUser);
         
         const user = await User.create(newUser);
         res.status(201).json({ user });
@@ -289,16 +288,15 @@ router.get('/userType/:token',
                 return res.status(404).json({ errorMessage: "No existe ese usuario" });
             }
             
-            const id = user.fk_rates;
-            const rateFind = await Rate.findOne({
-                where: { id }
-            });
-            
-            if (!rateFind) {
-                return res.status(404).json({ errorMessage: "No existe esa tarifa" });
+            const idType = user.fk_type_users;
+            if(idType == 1){
+                console.log("aqui --> true", idType)
+                return res.status(202).json({ comprobar: true });
             }
-        
-            res.json(rateFind);
+            else{
+                console.log("aqui --> false", idType)
+                return res.status(202).json({ comprobar: false });
+            }
         
             //res.json(user);
         }
