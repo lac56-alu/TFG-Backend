@@ -50,20 +50,19 @@ const User = sequelize.define("users", {
 User.generateKey = function(){
   var randomBytes = crypto.randomBytes(32);
   var apiKey = randomBytes.toString('hex');
-  return apiKey
+  return apiKey;
 }
 
-/*
-User.prototype.isValidPassword = function(password) {
-  console.log(password, this.password, bcrypt.compareSync(password, this.password));
-  return bcrypt.compareSync(password, this.password);
-};
-
-User.genCreditCardHash = function(creditCard) {
-  const salt = process.env.CC_SALT || "$2b$10$Qcdj3xcmao1tBJKVUFVwju";
-
-  return bcrypt.hashSync(creditCard.toString(), salt);
+// SEGURIDAD
+User.convertirA32Bytes = function(str) {
+  return crypto.createHash('sha256').update(str).digest();
 }
-*/
+
+User.encriptarPassword = function (password, clave) {
+  const cipher = crypto.createCipheriv('aes-256-cbc', clave, Buffer.alloc(16));
+  let encrypted = cipher.update(password, 'utf-8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
+}
 
 module.exports = User;

@@ -3,6 +3,8 @@ const { query, matchedData, body, param } = require('express-validator');
 //const generateApiKey = require('generate-api-key');
 
 const User = require('../models/user');
+const password_IV = 'password12345_pass'
+const password_bytes = User.convertirA32Bytes(password_IV);
 
 
 // Modulos de ayuda
@@ -116,12 +118,14 @@ router.post('/createUser',
         const newUser = matchedData(req, { locations: ['body'], includeOptionals: true });
         newUser.token = User.generateKey();
         
+        var passwordEncript = User.encriptarPassword(newUser.password, password_bytes);
+        newUser.password = passwordEncript;
+
         const user = await User.create(newUser);
         res.status(201).json({ user });
     }
     catch (error) {
-        // Manejo de la excepción
-        console.error('Se produjo un error:', error.message);
+        console.error('Se produjo un error:', error);
         res.status(400).json({ errorMessage: error.message });
     } 
 });

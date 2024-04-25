@@ -3,6 +3,8 @@ const { query, matchedData, body, param } = require('express-validator');
 const crypto = require('crypto');
 
 const User = require('../models/user');
+const password_IV = 'password12345_pass'
+const password_bytes = User.convertirA32Bytes(password_IV);
 
 
 // Modulos de ayuda
@@ -22,10 +24,9 @@ router.post('/',
             where: { email: req.body.email }
         });
 
-        console.log('\x1b[33m%s\x1b[0m', "PARAMETROS --> ", req.body.email, req.body.password);
-        console.log('\x1b[33m%s\x1b[0m', "BUSQUEDA --> ", user);
-
-        if(req.body.password == user.password){
+        var passwordEncript = User.encriptarPassword(req.body.password.toString(), password_bytes);
+        
+        if(passwordEncript.toString() == user.password){
             var token = user.token
             res.status(201).json({ token });
         }
@@ -35,7 +36,7 @@ router.post('/',
     }
     catch (error) {
         // Manejo de la excepción
-        console.error('Se produjo un error:', error.message);
+        console.error('Se produjo un error:', error);
         res.status(400).json({ errorMessage: error.message });
     } 
 });
