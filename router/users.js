@@ -178,6 +178,12 @@ router.patch('/updateUserToken/:token',
                 locations: ['body'], 
                 includeOptionals: true 
             });
+
+            if(modifyUser.password){
+                var passwordEncript = User.encriptarPassword(modifyUser.password, password_bytes);
+                modifyUser.password = passwordEncript;
+            }
+
             var updateResult = await User.update(modifyUser, {
                 where: {
                     token: tokenEdit
